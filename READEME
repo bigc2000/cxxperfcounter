@@ -1,0 +1,8 @@
+ ## cxxperfcounter
+方便C++程序使用，基于C++11,主要是从java 的metrics（包括2.0和3.0版本）copy过来的。
+ ### java的Striped64 和LongAdder机制没能移植过来，因此，可能存在新能的问题，不适用于大量更新
+ ### 没有很好的ConcurrentHashMap设计机制， 太多统计变量，可能不合适
+ ### 使用libevent的事件模型来做定时任务，也是移植java的
+ ### JSON序列化，使用的是repaidjson，稍有修改（JSON输出浮点数）
+ ### 没有使用glog等日志，打算自己轮一个简单的，C语言模型的，不喜欢C++ stream
+
