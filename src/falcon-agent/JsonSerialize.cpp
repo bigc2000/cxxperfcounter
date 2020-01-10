@@ -6,7 +6,13 @@
 
 using namespace mc;
 
-HttpSendTask::HttpSendTask() : initialDelay(0), period(300), url(""), endpoint("onebox") {
+HttpSendTask::HttpSendTask() noexcept: initialDelay(0), period(300), url("http://127.0.0.1:1988/v1/push"), endpoint("onebox") {
+}
+HttpSendTask::HttpSendTask(const HttpSendTask& src) noexcept{
+  initialDelay = src.initialDelay;
+  period = src.period;
+  url = src.url;
+  endpoint = src.endpoint;
 }
 
 HttpSendTask::~HttpSendTask() {
@@ -18,8 +24,7 @@ void HttpSendTask::run() {
                                                            &curl_easy_cleanup);
   setDefaultCurlOpt(curl.get());
   std::string res;
-  const char *url = "http://127.0.0.1:1988/v1/push";
-  curl_easy_http_post(curl.get(), 3000, url, req, &res);
+  curl_easy_http_post(curl.get(), 3000, url.c_str(), req, &res);
 }
 
 void HttpSendTask::writeCounter(std::stringstream &ss, CounterPtr ptr) const {

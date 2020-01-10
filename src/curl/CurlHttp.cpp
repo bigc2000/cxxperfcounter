@@ -1,7 +1,9 @@
 
 #include "CurlHttp.h"
 
+#ifndef WARNING_LOG
 #define  WARNING_LOG printf
+#endif
 
 CURLSH *share_handle = NULL;
 

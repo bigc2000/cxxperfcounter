@@ -18,16 +18,38 @@ class HttpSendTask : public mc::Runnable {
   std::string endpoint;
 
 public:
-  HttpSendTask();
-
-  void setEndpoint(const std::string &endpoint) {
-    this->endpoint = endpoint;
-  }
+  HttpSendTask() noexcept;
+  HttpSendTask(const HttpSendTask&) noexcept;
 
   virtual ~HttpSendTask();
 
 public:
   virtual void run() override;
+
+  void setUrl(const std::string &url) {
+    this->url = url;
+  }
+
+  const std::string &getUrl() const {
+    return url;
+  }
+
+  std::string getUrl() {
+    return url;
+  }
+
+  void setEndpoint(const std::string &endpoint) {
+    this->endpoint = endpoint;
+  }
+
+  const std::string &getEndpoint() const {
+    return endpoint;
+  }
+
+  std::string getEndpoint() {
+    return endpoint;
+  }
+
 
 private:
   std::string write();

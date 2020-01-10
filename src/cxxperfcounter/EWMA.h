@@ -11,9 +11,9 @@
 namespace mc {
 
 class EWMA {
-  constexpr static const double M1_ALPHA = 0.07995558537067671D;// 1.0D - Math.exp(-0.08333333333333333D);
-  constexpr static const double M5_ALPHA = 0.01652854617838251;//1.0D - Math.exp(-0.016666666666666666D);
-  constexpr static const double M15_ALPHA = 0.00554015199509772;//1.0D - Math.exp(-0.005555555555555555D);
+  constexpr static const double M1_ALPHA = 0.07995558537067671D;// 1.0D - Math.exp(-0.08333333333333333D); 1minute
+  constexpr static const double M5_ALPHA = 0.01652854617838251;//1.0D - Math.exp(-0.016666666666666666D); 5minutes
+  constexpr static const double M15_ALPHA = 0.00554015199509772;//1.0D - Math.exp(-0.005555555555555555D);15minutes
   AtomicBoolean initialized;
   AtomicDouble rate;
   AtomicLong uncounted;
@@ -44,7 +44,6 @@ public:
 
   static EWMA oneMinuteEWMA() {
     return EWMA(M1_ALPHA, std::chrono::seconds(5L));
-
   }
 
 
@@ -65,8 +64,7 @@ public:
 
 
   void tick() {
-    //这两句不能保证原子，怎么合起来比较好？
-    int64_t count = uncounted.load();
+    int64_t count = uncounted.exchange(0, std::memory_order_acquire);
     uncounted.store(0);
     double instantRate = count / interval;
     bool changed = false;

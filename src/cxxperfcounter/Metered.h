@@ -18,7 +18,7 @@ public:
    *
    * @return the number of events which have been marked
    */
-  virtual int64_t getCount() const =0;
+  virtual int64_t getCount() const = 0;
 
   /**
    * Returns the fifteen-minute exponentially-weighted moving average rate at which events have
@@ -30,7 +30,7 @@ public:
    * @return the fifteen-minute exponentially-weighted moving average rate at which events have
    *         occurred since the meter was created
    */
-  virtual double getFifteenMinuteRate()=0;
+  virtual double getFifteenMinuteRate() = 0;
 
   /**
    * Returns the five-minute exponentially-weighted moving average rate at which events have
@@ -42,14 +42,14 @@ public:
    * @return the five-minute exponentially-weighted moving average rate at which events have
    *         occurred since the meter was created
    */
-  virtual double getFiveMinuteRate()=0;
+  virtual double getFiveMinuteRate() = 0;
 
   /**
    * Returns the mean rate at which events have occurred since the meter was created.
    *
    * @return the mean rate at which events have occurred since the meter was created
    */
-  virtual double getMeanRate()=0;
+  virtual double getMeanRate() = 0;
 
   /**
    * Returns the one-minute exponentially-weighted moving average rate at which events have
@@ -61,7 +61,7 @@ public:
    * @return the one-minute exponentially-weighted moving average rate at which events have
    *         occurred since the meter was created
    */
-  virtual double getOneMinuteRate()=0;
+  virtual double getOneMinuteRate() = 0;
 };
 
 }
