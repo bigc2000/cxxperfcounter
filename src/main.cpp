@@ -3,7 +3,7 @@
 #include <cstring>
 #include <curl/curl.h>
 //#include "cxxperfcounter/EWMA.h"
-#include <glog/logging.h>
+
 #include <thread>
 #include "falcon-agent/JsonSerialize.h"
 

@@ -15,19 +15,18 @@ namespace mc {
 class Meter : public Metered {
 public:
   constexpr const static uint64_t TICK_INTERVAL =
-      std::chrono::duration_cast<TIME_DURATION>(std::chrono::seconds(5)).count();
+    std::chrono::duration_cast<TIME_DURATION>(std::chrono::seconds(5)).count();
 protected:
-  EWMA m1Rate;
-  EWMA m5Rate;
-  EWMA m15Rate;
+  std::unique_ptr<EWMA> m1Rate;
+  std::unique_ptr<EWMA> m5Rate;
+  std::unique_ptr<EWMA> m15Rate;
 
   AtomicUInteger count;
   uint64_t startTime;
   AtomicULong lastTick;
   CLOCK clock;//时钟
 public:
-  Meter() : Meter(clock) {
-
+  Meter() noexcept : Meter(CLOCK()) {
   }
 
   /**
@@ -35,14 +34,14 @@ public:
    *
    * @param clock      the clock to use for the meter ticks
    */
-  Meter(CLOCK clock) {
+  Meter(CLOCK clock)noexcept {
     count = 0;
     this->clock = clock;
     startTime = clock.now().time_since_epoch().count();
     lastTick = startTime;
-    m1Rate = EWMA::oneMinuteEWMA();
-    m5Rate = EWMA::fiveMinuteEWMA();
-    m15Rate = EWMA::fifteenMinuteEWMA();
+    m1Rate = std::unique_ptr<EWMA>(EWMA::oneMinuteEWMA());
+    m5Rate = std::unique_ptr<EWMA>(EWMA::fiveMinuteEWMA());
+    m15Rate = std::unique_ptr<EWMA>(EWMA::fifteenMinuteEWMA());
   }
 
   virtual ~Meter() {}
@@ -69,9 +68,9 @@ public:
   void mark(uint64_t n) {
     tickIfNecessary();
     count.fetch_add(n, std::memory_order_relaxed);
-    m1Rate.update(n);
-    m5Rate.update(n);
-    m15Rate.update(n);
+    m1Rate->update(n);
+    m5Rate->update(n);
+    m15Rate->update(n);
   }
 
   void tickIfNecessary() {
@@ -80,46 +79,46 @@ public:
     uint64_t age = newTick - oldTick;
     if (age > TICK_INTERVAL) {
       uint64_t newIntervalStartTick = newTick - age % TICK_INTERVAL;
-
       if (lastTick.compare_exchange_strong(oldTick, newIntervalStartTick)) {
         uint64_t requiredTicks = age / TICK_INTERVAL;
         for (long i = 0; i < requiredTicks; i++) {
-          m1Rate.tick();
-          m5Rate.tick();
-          m15Rate.tick();
+          m1Rate->tick();
+          m5Rate->tick();
+          m15Rate->tick();
         }
       }
     }
   }
 
-/**
- * @brief 只会累加计数
- * @return
- */
+  /**
+   * @brief 只会累加计数
+   * @return
+   */
   int64_t getCount() const override {
     return count;
   }
 
   double getOneMinuteRate() override {
     tickIfNecessary();
-    return m1Rate.getRate();
+    return m1Rate->getRate();
   }
 
   double getFifteenMinuteRate() override {
     tickIfNecessary();
-    return m15Rate.getRate();
+    return m15Rate->getRate();
   }
 
   double getFiveMinuteRate() override {
     tickIfNecessary();
-    return m5Rate.getRate();
+    return m5Rate->getRate();
   }
 
 
   double getMeanRate() override {
     if (getCount() == 0) {
       return 0.0;
-    } else {
+    }
+    else {
       double elapsed = (clock.now().time_since_epoch().count() - startTime);
       return getCount() / elapsed;
     }

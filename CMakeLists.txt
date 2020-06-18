@@ -41,7 +41,7 @@ add_executable(perfcounter src/main.cpp)
 # 动态链接
 target_link_libraries(perfcounter falcon-agent)
 target_link_libraries(perfcounter cxxmetric eventhttpserver curlutil)
-target_link_libraries(perfcounter glog gflags)
+#target_link_libraries(perfcounter glog gflags)
 target_link_libraries(perfcounter event)
 
 target_link_libraries(perfcounter curl pthread)

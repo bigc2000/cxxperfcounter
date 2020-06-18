@@ -52,10 +52,10 @@ public:
   std::vector<MetricPtr> getMeters() const {
     std::vector<MetricPtr> vec;
     for (auto &it: counterMap) {
-      vec.push_back((MetricPtr) it.second);
+      vec.emplace_back((MetricPtr) it.second);
     }
     for (auto &it : histMap) {
-      vec.push_back((MetricPtr) it.second);
+      vec.emplace_back((MetricPtr) it.second);
     }
     return vec;//rvo
   }

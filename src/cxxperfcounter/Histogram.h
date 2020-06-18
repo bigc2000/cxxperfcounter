@@ -2,11 +2,7 @@
 
 #include <memory.h>
 #include <mutex>
-#include <limits.h>
-#include "../typedefines.h"
-#include "Metered.h"
-#include "Meter.h"
-#include "Snapshot.h"
+
 #include <UniformSample.h>
 /**
  * @brief 简化了JAVA的逻辑,参照旧的java实现,性能应该比最新版本基于LongAdder和ConcurrentSkipListMap的java差2-3倍
@@ -22,6 +18,8 @@ static const int DEFAULT_SAMPLE_SIZE = 1028;
 class Histogram : public Metric {
   UniformSample sample;
   std::string _name;
+  AtomicULong lastTick;
+  CLOCK clock;//时钟  
 public:
   Histogram() : sample(DEFAULT_SAMPLE_SIZE) {
   }
@@ -37,7 +35,7 @@ public:
   }
 
   void name(std::string &&name) {
-    _name = std::move(name);
+    _name = name;
   }
 
   /**
@@ -45,7 +43,7 @@ public:
   * @param value the length of the value
   */
   void update(int value) {
-    update((long) value);
+      update((long) value);
   }
 
   /**
@@ -66,6 +64,9 @@ public:
   ///@brief don't call frequently.just call once,and get percentile.
   Snapshot getSnapshot() {
     return sample.getSnapshot();
+  }
+  void tickIfNecessary() {
+    
   }
 };
 }

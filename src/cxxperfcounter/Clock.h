@@ -8,7 +8,8 @@
 
 #ifndef MC_CLOCK
 #define MC_LOCK
-typedef std::chrono::steady_clock CLOCK;
+
+typedef std::chrono::system_clock CLOCK;
 typedef decltype(CLOCK::now()) TIME_POINT;
 typedef decltype(CLOCK::now().time_since_epoch()) TIME_DURATION;
 

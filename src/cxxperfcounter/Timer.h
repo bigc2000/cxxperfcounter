@@ -2,57 +2,60 @@
 // Created by wx on 19-6-10.
 //
 #pragma  once
-namespace mc{
-class Timer :public Meter{
+#include "Meter.h"
+#include "EWMA.h"
+#include "Histogram.h"
+namespace mc {
+class Timer :public Meter {
 
   //50
   //75
   //99
+  EWMA p50;
+  EWMA p75;
+  Histogram histogram;
 private:
   // AtomicLong count;
 public:
-  Timer() : Counter(0) {
+  Timer() = default;
+  Timer(Timer && src) {
+    this->p50 = src.p50;
+    this->p75 = src.p75;
   }
+  virtual ~Timer() = default;
 
-  /**
-   * @brief with initial value
-   * @param val
-   */
-  Timer(int64_t val) {
-    count = val;
-  }
-
-  virtual  ~Counter() {
-  }
-
+  Timer(const Timer&) = delete;
+  Timer operator=(const Timer &) = delete;
   /**
    * @brief fetch and add
    * @param n to add
    * @return origin value before add.
    */
   int64_t getAndAdd(int n) {
-    return count.fetch_add(n);
+    return count.fetch_add(1);
   }
 
   int64_t addAndGet(int n) {
-    count.fetch_add(n);
+    count.fetch_add(1);
     return count;
   }
 
   void inc(int n) {
-    count.fetch_add(n);
+    count.fetch_add(1);
+    
   }
   void dec(int n) {
-    count.fetch_add(-n);
+    //unsupported
   }
-  virtual int64_t getCount() const{
+  virtual int64_t getCount() const {
     return count;
   }
 
   METRIC_TYPE getType() const override {
-    return COUNTER;
+    return HIST;
   }
-
-
-};
+  void tick() {
+    histogram.tick();
+  }
+ };
 }

@@ -10,8 +10,8 @@
 
 namespace mc {
 
-typedef std::atomic_ulong AtomicULong;
-typedef std::atomic_long AtomicLong;
+typedef std::atomic_uint64_t AtomicULong;
+typedef std::atomic_int64_t AtomicLong;
 typedef std::atomic_uint AtomicUInteger;
 typedef std::atomic_int AtomicInteger;
 typedef std::atomic<double> AtomicDouble;
