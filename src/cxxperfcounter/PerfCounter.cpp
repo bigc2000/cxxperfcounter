@@ -7,14 +7,17 @@
 
 using namespace mc;
 
-int64_t PerfCounter::count(const std::string &name, int cnt) {
+INT64_T PerfCounter::count(const std::string &name, int cnt) {
   CounterPtr counterPtr = MetricRegistry::getInstance()->counter(name);
   counterPtr->mark(cnt);
   return counterPtr->getCount();
 }
+void PerfCounter::count(const std::string &name, int cnt, double timecost) {
+  CounterPtr counterPtr = MetricRegistry::getInstance()->counter(name);
+  counterPtr->mark(cnt);
+  MetricRegistry::getInstance()->histogram(name)->update(cnt,timecost/cnt);
+}
 
-void PerfCounter::countDuration(const std::string &name, int cnt, int timecost) {
-  for (int i = 0; i < cnt; i++) {
-    MetricRegistry::getInstance()->histogram(name)->update(timecost);
-  }
+void PerfCounter::countDuration(const std::string &name, double timecost) {
+  MetricRegistry::getInstance()->histogram(name)->update(timecost);
 }

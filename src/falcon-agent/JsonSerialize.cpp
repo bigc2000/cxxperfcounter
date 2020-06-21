@@ -3,7 +3,7 @@
 
 #include "JsonSerialize.h"
 #include "MetricAgent.h"
-
+#include "../curl/CurlHttp.h"
 using namespace mc;
 
 HttpSendTask::HttpSendTask() : initialDelay(0), period(300), url(""), endpoint("onebox") {

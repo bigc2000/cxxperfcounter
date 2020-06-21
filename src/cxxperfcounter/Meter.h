@@ -1,7 +1,5 @@
 #pragma once
 
-
-#include <chrono>
 #include "Metered.h"
 #include "EWMA.h"
 #include "Clock.h"
@@ -14,30 +12,25 @@
 namespace mc {
 class Meter : public Metered {
 public:
-  constexpr const static uint64_t TICK_INTERVAL =
-    std::chrono::duration_cast<TIME_DURATION>(std::chrono::seconds(5)).count();
+
 protected:
   std::unique_ptr<EWMA> m1Rate;
   std::unique_ptr<EWMA> m5Rate;
   std::unique_ptr<EWMA> m15Rate;
 
-  AtomicUInteger count;
-  uint64_t startTime;
-  AtomicULong lastTick;
+  AtomicLong count;
+  INT64_T startTime;
+  AtomicLong lastTick;
   CLOCK clock;//时钟
 public:
-  Meter() noexcept : Meter(CLOCK()) {
-  }
-
   /**
    * Creates a new {@link Meter}.
    *
    * @param clock      the clock to use for the meter ticks
    */
-  Meter(CLOCK clock)noexcept {
+  Meter() noexcept {
     count = 0;
-    this->clock = clock;
-    startTime = clock.now().time_since_epoch().count();
+    startTime = GetNowTimeCount();
     lastTick = startTime;
     m1Rate = std::unique_ptr<EWMA>(EWMA::oneMinuteEWMA());
     m5Rate = std::unique_ptr<EWMA>(EWMA::fiveMinuteEWMA());
@@ -65,7 +58,7 @@ public:
    *
    * @param n the number of events
    */
-  void mark(uint64_t n) {
+  void mark(int n) {
     tickIfNecessary();
     count.fetch_add(n, std::memory_order_relaxed);
     m1Rate->update(n);
@@ -74,13 +67,13 @@ public:
   }
 
   void tickIfNecessary() {
-    uint64_t oldTick = lastTick;
-    uint64_t newTick = clock.now().time_since_epoch().count();
-    uint64_t age = newTick - oldTick;
+    INT64_T oldTick = lastTick;
+    INT64_T newTick = GetNowTimeCount();
+    INT64_T age = newTick - oldTick;
     if (age > TICK_INTERVAL) {
-      uint64_t newIntervalStartTick = newTick - age % TICK_INTERVAL;
+      INT64_T newIntervalStartTick = newTick - age % TICK_INTERVAL;
       if (lastTick.compare_exchange_strong(oldTick, newIntervalStartTick)) {
-        uint64_t requiredTicks = age / TICK_INTERVAL;
+        INT64_T requiredTicks = age / TICK_INTERVAL;
         for (long i = 0; i < requiredTicks; i++) {
           m1Rate->tick();
           m5Rate->tick();
@@ -119,7 +112,7 @@ public:
       return 0.0;
     }
     else {
-      double elapsed = (clock.now().time_since_epoch().count() - startTime);
+      double elapsed = GetNowTimeCount() - startTime;
       return getCount() / elapsed;
     }
   }

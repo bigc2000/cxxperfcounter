@@ -5,13 +5,10 @@
 #pragma once
 
 #include <chrono>
-
-#ifndef MC_CLOCK
-#define MC_LOCK
-
-typedef std::chrono::system_clock CLOCK;
-typedef decltype(CLOCK::now()) TIME_POINT;
-typedef decltype(CLOCK::now().time_since_epoch()) TIME_DURATION;
-
+#ifndef CLOCK
+#define CLOCK std::chrono::steady_clock 
 #endif
+//typedef decltype(CLOCK::now().time_since_epoch()) TIME_DURATION;
+typedef std::chrono::seconds TIME_DURATION;
+
 

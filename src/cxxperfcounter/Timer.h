@@ -18,13 +18,11 @@ private:
   // AtomicLong count;
 public:
   Timer() = default;
-  Timer(Timer && src) {
-    this->p50 = src.p50;
-    this->p75 = src.p75;
-  }
-  virtual ~Timer() = default;
-
+  Timer(Timer && src) noexcept = delete;    
   Timer(const Timer&) = delete;
+  virtual ~Timer() {};
+
+
   Timer operator=(const Timer &) = delete;
   /**
    * @brief fetch and add
@@ -42,7 +40,7 @@ public:
 
   void inc(int n) {
     count.fetch_add(1);
-    
+
   }
   void dec(int n) {
     //unsupported
@@ -54,8 +52,5 @@ public:
   METRIC_TYPE getType() const override {
     return HIST;
   }
-  void tick() {
-    histogram.tick();
-  }
- };
+};
 }

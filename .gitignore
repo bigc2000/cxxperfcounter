@@ -36,3 +36,8 @@ cmake-build-release/
 cmake-build
 Makefile
 .vs/**
+**/Debug
+**/Release
+**/*.cmake
+**/CMakeFiles
+**/CMakeCache.txt

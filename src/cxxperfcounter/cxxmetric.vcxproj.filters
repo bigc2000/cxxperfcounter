@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="E:\work\cxxperfcounter\src\cxxperfcounter\EWMA.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="E:\work\cxxperfcounter\src\cxxperfcounter\Snapshot.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="E:\work\cxxperfcounter\src\cxxperfcounter\Metric.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="E:\work\cxxperfcounter\src\cxxperfcounter\Meter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="E:\work\cxxperfcounter\src\cxxperfcounter\PerfCounter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="E:\work\cxxperfcounter\src\cxxperfcounter\Counter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="E:\work\cxxperfcounter\src\cxxperfcounter\Histogram.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="E:\work\cxxperfcounter\src\cxxperfcounter\Timer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="E:\work\cxxperfcounter\src\cxxperfcounter\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{A24CC9E9-C600-3663-82FE-480AE6AFC0A5}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

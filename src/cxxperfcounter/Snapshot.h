@@ -47,6 +47,7 @@ public:
   }
   
   ~Snapshot() = default;
+
   double getValue(double percent) const {
     if (percent >= 0.0 && percent <= 1.0) {
       if (this->values.size() == 0) {
@@ -73,25 +74,25 @@ public:
   }
 
   int size() const {
-    return this->values.size();
+    return static_cast<int>(values.size());
   }
 
   double getMedian() const {
-    return this->getValue(0.5);
+    return getValue(0.5);
   }
 
 
   double get75thPercentile() const {
-    return this->getValue(0.75);
+    return getValue(0.75);
   }
 
 
   double get95thPercentile() const {
-    return this->getValue(0.95);
+    return getValue(0.95);
   }
 
   double get99thPercentile() const {
-    return this->getValue(0.99);
+    return getValue(0.99);
   }
 
 
@@ -115,7 +116,7 @@ public:
       mathStat[0] = n;
       mathStat[1] = values[0];
       mathStat[2] = values[values.size() - 1];
-      double sum = std::accumulate(values.begin(), values.end(), 0.0D);
+      double sum = std::accumulate(values.begin(), values.end(), 0);
       mathStat[3] = sum;
       double avg = sum / values.size();
       mathStat[4] = avg;

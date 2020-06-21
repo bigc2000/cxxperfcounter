@@ -4,10 +4,6 @@
  */
 #include "../typedefines.h"
 #include <chrono>
-#include <ctime>
-#include <algorithm>
-#include "Clock.h"
-
 namespace mc {
 
 class EWMA {
@@ -21,7 +17,7 @@ class EWMA {
   double interval;
 public:
 
-  EWMA() : initialized(false), rate(0), uncounted(0), alpha(0.6), interval(std::chrono::seconds(5L).count()) {};
+  EWMA() : initialized(false), rate(0), uncounted(0), alpha(0.6), interval(std::chrono::seconds(5).count()) {};
 
   EWMA(const EWMA &ewma) : alpha(ewma.alpha), interval(ewma.interval) {
     this->initialized.store(ewma.initialized);
@@ -60,14 +56,13 @@ public:
   }
 
 
-  void update(int64_t n) {
+  void update(INT64_T n) {
     uncounted.fetch_add(n, std::memory_order_relaxed);
   }
 
 
   void tick() {
-    //这两句不能保证原子，怎么合起来比较好？
-    int64_t count = uncounted.load();
+    auto count = uncounted.load();
     uncounted.store(0);
     double instantRate = count / interval;
     bool changed = false;

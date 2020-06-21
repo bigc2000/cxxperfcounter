@@ -4,14 +4,13 @@
 
 #include "MetricRegistry.h"
 #include "Metered.h"
-#include "../event/EventTimer.h"
 
-#include "../curl/CurlHttp.h"
+
 #include <string>
 #include <sstream>
 
 namespace mc {
-class HttpSendTask : public mc::Runnable {
+class HttpSendTask  {
   int initialDelay;//mill seconds
   int period; //mill seconds
   std::string url;
@@ -27,7 +26,7 @@ public:
   virtual ~HttpSendTask();
 
 public:
-  virtual void run() override;
+  virtual void run();
 
 private:
   std::string write();

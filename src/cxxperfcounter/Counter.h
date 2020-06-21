@@ -21,7 +21,7 @@ public:
    * @brief with initial value
    * @param val
    */
-  Counter(int64_t val) {
+  Counter(INT64_T val) {
     count = val;
   }
 
@@ -58,7 +58,7 @@ public:
     count.fetch_add(-n);
   }
 
-  virtual int64_t getCount() const {
+  virtual INT64_T getCount() const {
     return count;
   }
 

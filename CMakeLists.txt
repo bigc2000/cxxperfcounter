@@ -9,17 +9,18 @@ include_directories(src/event src/cxxperfcounter src/falcon-agent src/curl third
 include_directories(SYSTEM ${CMAKE_CURRENT_BINARY_DIR})
 #set(SOURCE_FILES src/event/LibeventHttpServer.c)
 
-add_subdirectory(src/event)
+#add_subdirectory(src/event)
+
 add_subdirectory(src/cxxperfcounter)
-add_subdirectory(src/curl)
-add_subdirectory(src/falcon-agent)
+if(WITH_CURL)
+   add_subdirectory(src/curl)
+endif()
+if(WITH_FALCON_AGENT)
+  add_subdirectory(src/falcon-agent)
+endif()
 
-
-find_library(eventhttpserver src/event)
-
-link_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/event)
+#find_library(eventhttpserver src/event)
 #find_library(eventhttpserver ${CMAKE_CURRENT_SOURCE_DIR}/event)
-add_executable(perfcounter src/main.cpp)
 
 # 基于static方式来做的
 #add_library(glog_static STATIC IMPORTED)
@@ -39,9 +40,7 @@ add_executable(perfcounter src/main.cpp)
 #target_link_libraries(perfcounter glog_static gflag_static)
 #target_link_libraries(perfcounter event_static event_core_static event_extra_static)
 # 动态链接
-target_link_libraries(perfcounter falcon-agent)
-target_link_libraries(perfcounter cxxmetric eventhttpserver curlutil)
-#target_link_libraries(perfcounter glog gflags)
-target_link_libraries(perfcounter event)
 
-target_link_libraries(perfcounter curl pthread)
+
+add_executable(cxxperfcounter_test src/main.cpp )
+target_link_libraries(cxxperfcounter_test cxxmetric )

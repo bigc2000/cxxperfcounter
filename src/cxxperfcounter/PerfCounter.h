@@ -11,8 +11,8 @@ namespace mc {
 class PerfCounter {
 
 public:
-  static int64_t count(const std::string &name, int cnt);
-
-  static void countDuration(const std::string &name, int cnt, int timecost);//TimeUnit.millseconds
+  static INT64_T count(const std::string &name, int cnt);
+  static void count(const std::string &name, int cnt, double timecost);
+  static void countDuration(const std::string &name, double timecost);//TimeUnit.millseconds
 };
 }

@@ -12,7 +12,6 @@
 #include "Gauge.h"
 #include "Counter.h"
 #include "Histogram.h"
-#include "EventTimer.h"
 
 namespace mc {
 
