@@ -21,7 +21,6 @@ protected:
   AtomicLong count;
   INT64_T startTime;
   AtomicLong lastTick;
-  CLOCK clock;//时钟
 public:
   /**
    * Creates a new {@link Meter}.
@@ -61,9 +60,9 @@ public:
   void mark(int n) {
     tickIfNecessary();
     count.fetch_add(n, std::memory_order_relaxed);
-    m1Rate->update(n);
-    m5Rate->update(n);
-    m15Rate->update(n);
+    m1Rate->mark(n);
+    m5Rate->mark(n);
+    m15Rate->mark(n);
   }
 
   void tickIfNecessary() {
@@ -84,7 +83,7 @@ public:
   }
 
   /**
-   * @brief 只会累加计数
+   * @brief only add
    * @return
    */
   int64_t getCount() const override {

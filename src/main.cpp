@@ -12,8 +12,54 @@ void test(struct evhttp_request *req, void *) {
   printf("get request\n");
 }
 
+struct B {
+  int n;
+  
+  B() {
+    printf("default::B\n");
+  }
+
+  B(const B&) {
+    printf("const ctor::B\n");
+  }
+  B( B&&) {
+    printf("R  ctor::B\n");
+  }
+
+};
+
+
+struct A {
+  int n;
+  B b;
+  A() {
+    printf("default :A\n");
+  }
+  A(const A&a):b(a.b) {
+    printf("const ctor\n");
+  }
+  A(A&&a):b(std::move(a.b)) {
+    printf("R  ctor A:\n");
+  }
+
+
+  const B& getB()const {
+    printf("get const &() ::A");
+    return b;
+  }
+};
+
 
 int main() {
+  A *pA = new A();
+  A a2(*pA);
+  A a3(std::move(*pA));
+
+ 
+  const B&b2 = std::move(a2.getB());
+  const B&b3(a2.getB());
+
+ 
 
   decltype(CLOCK::now().time_since_epoch()) nowTime = CLOCK::now().time_since_epoch();
   INT64_T newTick = nowTime.count();
@@ -32,7 +78,7 @@ int main() {
   using namespace mc;
   //timer.scheduleAtFixedRate(MetricRegistry::getInstance(), 100, 300 * 1000);
   MetricRegistry::getInstance()->counter("abc")->inc(100);
-  MetricRegistry::getInstance()->histogram("abc")->update(100);
+  MetricRegistry::getInstance()->timer("abc")->mark(100);
   int i = 0;
   while (1) {
 
@@ -46,14 +92,13 @@ int main() {
       printf("abc:five minute rate=%f\n", MetricRegistry::getInstance()->counter("abc")->getFiveMinuteRate());
       PerfCounter::count("ag", 1, rand() % 10);
       PerfCounter::countDuration("ah", rand() % 1000);
-      printf("snapshot size=%d\n", MetricRegistry::getInstance()->histogram("ah")->getSnapshot().size());
+      printf("snapshot size=%d\n", MetricRegistry::getInstance()->timer("ah")->getFifteenMinuteRate());
+
       //printf("ah:five minute snapshot=%s\n",
-      //       MetricRegistry::getInstance()->histogram("ah")->getSnapshot().toString().c_str());
+      //       MetricRegistry::getInstance()->timer("ah")->getSnapshot().toString().c_str());
       //printf("ag:five minute snapshot=%s\n",
-      //       MetricRegistry::getInstance()->histogram("ag")->getSnapshot().toString().c_str());
+      //       MetricRegistry::getInstance()->timer("ag")->getSnapshot().toString().c_str());
 
-
-      MetricRegistry::getInstance()->histogram("ah")->getSnapshot().dump(stdout);
 
     }
     if (i++ < 20) {

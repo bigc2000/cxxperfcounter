@@ -8,7 +8,7 @@ namespace mc {
 enum METRIC_TYPE {
   COUNTER,
   GAUGE,
-  HIST,//not support yet
+  TIMER,//not support yet
 };
 constexpr const static int TICK_INTERVAL =
 static_cast<int> (std::chrono::duration_cast<TIME_DURATION>(std::chrono::seconds(5)).count());

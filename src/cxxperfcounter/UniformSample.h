@@ -13,20 +13,21 @@ namespace mc {
 static const int BITS_PER_LONG = 63;
 
 class UniformSample {
-  AtomicInteger first;
-  AtomicInteger last;
+  mutable AtomicInteger first;
+  mutable AtomicInteger last;
   int stepPerTick; //like HZ
   std::vector<std::pair<INT64_T, double>> values;
+  int availableTimeTicksDuration;
 public:
 
-  UniformSample(int reservoirSize, int stepPerTick_) noexcept : first(0), last(0), stepPerTick(stepPerTick_), values(reservoirSize) {
+  UniformSample(int reservoirSize, int stepPerTick_,int timeRange) noexcept : first(0), last(0), stepPerTick(stepPerTick_), values(reservoirSize) , availableTimeTicksDuration(timeRange){
+    //availableTimeTicksDuration = (std::chrono::duration_cast<TIME_DURATION>(std::chrono::minutes(19))).count();
   }
 
-  UniformSample(const UniformSample &src) noexcept : first(src.first.load()), last(src.last.load()), values(src.values) {
+  UniformSample(const UniformSample &src) noexcept : first(src.first.load()), last(src.last.load()), stepPerTick(src.stepPerTick), values(src.values) {
   }
 
-  UniformSample(UniformSample &&src) noexcept :first(src.first.load()), last(src.last.load()) {
-    values = src.values;
+  UniformSample(UniformSample &&src) noexcept :first(src.first.load()), last(src.last.load()) , stepPerTick(src.stepPerTick), values(src.values){
   }
   UniformSample & operator =(const UniformSample &src) noexcept {
     first = src.first.load(std::memory_order::memory_order_relaxed);
@@ -48,9 +49,12 @@ public:
     int end = last;
     return (end + N - begin) % N;
   }
+  void setValidTimeRange( int availableTimeTicksDuration) {
+    this-> availableTimeTicksDuration = availableTimeTicksDuration;
+  }
 
   ///@brief different to java, never use random to evict policy
-  void update(INT64_T ts, double value) {
+  void mark(INT64_T ts, double value) {
     int N = values.size();
     int cur = last;
     values[cur] = std::move(std::pair<INT64_T, double>(ts, value));
@@ -61,13 +65,12 @@ public:
       conflict = !last.compare_exchange_strong(oldValue, newValue, std::memory_order_release);
     } while (conflict);
   }
-  void tick(int tickCount, INT64_T nowTime, INT64_T timeUnitPerSecond = 1) {
+  void tick(int tickCount, INT64_T nowTime, INT64_T timeUnitPerSecond = 1) const {
     int N = values.size();
     bool conflict = false;
 
     bool changed = false;
-    int _5MinutesTick = (std::chrono::duration_cast<TIME_DURATION>(std::chrono::minutes(5))).count();
-    int _10MinutesTick = _5MinutesTick * 2;
+
     do {
       int begin = first.load();
       int end = last;
@@ -78,7 +81,7 @@ public:
       for (i = begin; i != end; i++) {
         //begin to decay
         INT64_T diff = nowTime - values[i].first;
-        if (diff > _10MinutesTick) {
+        if (diff > availableTimeTicksDuration) {
           moveFirstTo++;
         }
         else break;
@@ -87,7 +90,7 @@ public:
     } while (!changed);
   }
 
-  Snapshot getSnapshot() {
+  Snapshot getSnapshot() const {
     int N = values.size();
     int begin = first;
     int end = last;

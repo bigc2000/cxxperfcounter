@@ -7,9 +7,8 @@
 #include "Metric.h"
 #include "UniformSample.h"
 /**
- * @brief 简化了JAVA的逻辑,参照旧的java实现,性能应该比最新版本基于LongAdder和ConcurrentSkipListMap的java差2-3倍
- *只有update方法是同步方法,其它不能保证同步;如需要,显式使用锁
- * 去掉全局的统计，对于metrics来说，全局的意义不大，使用一段时间回归值
+ * @brief simplify the implementation from JAVA. 
+ * only has {size} buckets,and statistics last 10 minutes 
  *
  */
 namespace mc {
@@ -19,25 +18,37 @@ static const int DEFAULT_STEP_PER_TICK = 10;
 
 // so after DEFAULT_SAMPLE_SIZE/DEFAULT_STEP_PER_TICK * TICK_INTERVAL seconds,the snapshot will decay to zero 
 
-class Histogram : public Metric {
+class Histogram {
   UniformSample sample;
   std::string _name;
-  CLOCK clock;//时钟 
   AtomicLong lastTick;
-public:
-  Histogram() noexcept : sample(DEFAULT_SAMPLE_SIZE, DEFAULT_STEP_PER_TICK), _name(), clock(CLOCK()) {
-    lastTick = GetNowTimeCount();
-  }
-
-  Histogram(const Histogram &src) noexcept :sample(src.sample), _name(src._name), clock(src.clock), lastTick(src.lastTick.load()) {
+  
+  public:
+  Histogram() noexcept : sample(DEFAULT_SAMPLE_SIZE, DEFAULT_STEP_PER_TICK,(std::chrono::duration_cast<TIME_DURATION>(std::chrono::minutes(19))).count()), _name(){
+    lastTick = GetNowTimeCount(); 
 
   }
-  Histogram & operator =(const Histogram &src)noexcept {
+
+  Histogram(const Histogram &src) noexcept :sample(src.sample), _name(src._name), lastTick(src.lastTick.load()) {
+  }
+  Histogram(const Histogram && src) noexcept :sample(std::move(src.sample)), _name(std::move(src._name)), lastTick(src.lastTick.load()) {
+  }
+
+
+  Histogram & operator =(const Histogram &src) noexcept {
     sample = src.sample;
     _name = (src._name);
-    clock = (src.clock);
     lastTick = (src.lastTick.load());
   }
+
+
+  Histogram & operator =(const Histogram &&src) noexcept {
+    sample = src.sample;
+    _name = (src._name);
+    lastTick = (src.lastTick.load());
+  }
+
+
   virtual ~Histogram() {}
 
   const std::string &name() const {
@@ -57,25 +68,25 @@ public:
   * @param value the length of the value
   */
 
-  void update(double value) {
+  void mark(double value) {
     INT64_T lastTime = GetNowTimeCount();
-    sample.update(lastTime, value);
+    sample.mark(lastTime, value);
   }
 
-  void update(int cnt, double value) {
+  void mark(int cnt, double value) {
     INT64_T  lastTime = GetNowTimeCount();
     for (int i = 0; i < cnt; i++) {
-      sample.update(lastTime, value);
+      sample.mark(lastTime, value);
     }
   }
 
-  virtual INT64_T getCount() const override {
+  /**
+  *@brief only used for test, the size may vary widely.
+  *@return return the values of SAMPLE during[first ,last)
+  */
+  INT64_T getSize() const  {
     return (INT64_T)sample.size();
   };
-
-  virtual METRIC_TYPE getType() const override {
-    return HIST;
-  }
 
   ///@brief don't call frequently.just call once,and get percentile.
   Snapshot getSnapshot() {
@@ -83,7 +94,7 @@ public:
     return std::move(sample.getSnapshot());
   }
   void tickIfNecessary() {
-    //45sample.update(0);
+    //45sample.mark(0);
     INT64_T oldTick = lastTick;
     INT64_T newTick = GetNowTimeCount();
     INT64_T age = newTick - oldTick;

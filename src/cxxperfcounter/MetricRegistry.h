@@ -12,12 +12,14 @@
 #include "Gauge.h"
 #include "Counter.h"
 #include "Histogram.h"
+#include "Timer.h"
 
 namespace mc {
 
 typedef Gauge *GaugePtr;
 typedef Counter *CounterPtr;
 typedef Histogram *HistogramPtr;
+typedef Timer * TimerPtr;
 typedef Meter *MeterPtr;
 typedef Metric *MetricPtr;
 
@@ -25,7 +27,7 @@ class MetricRegistry {
 protected:
   mutable std::mutex m_mutex;
   std::map<std::string, CounterPtr> counterMap;
-  std::map<std::string, HistogramPtr> histMap;
+  std::map<std::string, TimerPtr> timerMap;
 
 protected:
   MetricRegistry() {}
@@ -35,11 +37,14 @@ protected:
   }
 
   CounterPtr newCounter() {
-    return new Counter;
+    return new Counter();
   }
 
   HistogramPtr newHistogram() {
-    return new Histogram;
+    return new Histogram();
+  }
+  TimerPtr newTimer() {
+    return new Timer();
   }
 
 public:
@@ -51,9 +56,6 @@ public:
   std::vector<MetricPtr> getMeters() const {
     std::vector<MetricPtr> vec;
     for (auto &it: counterMap) {
-      vec.emplace_back((MetricPtr) it.second);
-    }
-    for (auto &it : histMap) {
       vec.emplace_back((MetricPtr) it.second);
     }
     return vec;//rvo
@@ -74,13 +76,13 @@ public:
     return ptr;
   }
 
-  HistogramPtr histogram(const std::string &metricName) {
+  TimerPtr timer(const std::string &metricName) {
     std::lock_guard<decltype(m_mutex)> guard(m_mutex);
-    std::pair<std::map<std::string, HistogramPtr>::iterator, bool> it = histMap.insert(
-        std::make_pair<std::string, HistogramPtr>(std::string(metricName), (HistogramPtr) nullptr));
+    std::pair<std::map<std::string, TimerPtr>::iterator, bool> it = timerMap.insert(
+        std::make_pair<std::string, TimerPtr>(std::string(metricName),  nullptr));
     if (it.second) {
       //not exists,first time to add.
-      it.first->second = newHistogram();
+      it.first->second = newTimer();
     } else {
       //exist
     }

@@ -56,7 +56,7 @@ public:
   }
 
 
-  void update(INT64_T n) {
+  void mark(INT64_T n) {
     uncounted.fetch_add(n, std::memory_order_relaxed);
   }
 

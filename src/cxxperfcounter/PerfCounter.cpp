@@ -15,9 +15,9 @@ INT64_T PerfCounter::count(const std::string &name, int cnt) {
 void PerfCounter::count(const std::string &name, int cnt, double timecost) {
   CounterPtr counterPtr = MetricRegistry::getInstance()->counter(name);
   counterPtr->mark(cnt);
-  MetricRegistry::getInstance()->histogram(name)->update(cnt,timecost/cnt);
+  MetricRegistry::getInstance()->timer(name)->mark(cnt,timecost/cnt);
 }
 
 void PerfCounter::countDuration(const std::string &name, double timecost) {
-  MetricRegistry::getInstance()->histogram(name)->update(timecost);
+  MetricRegistry::getInstance()->timer(name)->mark(timecost);
 }
